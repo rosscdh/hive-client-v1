@@ -15,7 +15,8 @@ audit:
 	python setup.py audit
 
 release:
-	python scripts/make-release.py
+	#python scripts/make-release.py
+	git archive --format zip --output ../ansible-raspberry-pi/new-raspberry/roles/hive_client/files/hive-client.zip master
 
 ext-test:
 	python tests/flaskext_test.py --browse
