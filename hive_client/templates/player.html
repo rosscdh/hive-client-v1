@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>&nbsp;</title>
+
+    {% assets "css/bootstrap.min.css", "css/clean-blog.css", "video-js/video-js.min.css" %}
+        <link href="{{ ASSET_URL }}" rel="stylesheet" />
+    {% endassets %}
+    {% assets "nprogress-0.1.6/nprogress.css", "simpleWeather-3.0.2/simpleWeather.css" %}
+        <link href="{{ ASSET_URL }}" rel="stylesheet" />
+    {% endassets %}
+    <style>
+        html {overflow-x:hidden;}
+        body {font-family:arial;margin:0;padding:0;}
+
+        video, object {
+            top:0;left:0;
+            position:absolute;
+        }
+
+/*        #maximage {
+                      position:fixed !important;
+            /*position:relative !important;
+        }*/
+
+        .post-heading h1[data-name=name], .post-heading h2{
+          color:#000;
+        }
+        h1, h2 {
+            background:white;
+            background-color:rgba(255, 255, 255, 0.8);
+            /* For IE 5.5 - 7*/
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99FFFFFF, endColorstr=#99FFFFFF);
+            /* For IE 8*/
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99FFFFFF, endColorstr=#99FFFFFF)";
+            position:relative;
+            padding:0px;
+            margin:0px;
+        }
+        .no-content-found p {
+            color:#333;
+        }
+        .no-content-found h1{
+            background:black;
+            background-color:rgba(0, 0, 0, 0.8);
+            position:relative;
+            padding:10px;
+        }
+    </style>
+
+    {% assets "js/modernizr-2.8.3-custom.min.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+</head>
+
+<body>
+    <div id="progress"></div>
+    <div id="weather" class="weather"></div>
+
+    <!-- Main Content Page -->
+    <div id="content" class="container-fluid"></div>
+
+    <!-- Page Templates -->
+    {% raw %}
+    <script id="tpl-weather" type="text/x-handlebars-template">
+        <h2>
+        <i class="weather-symbol icon-{{ weather.code }}"></i>
+        <span id="moment_in_time" class="weather-seperator weather-time">{{ time }}</span>
+        <span class="weather-seperator weather-text">{{ weather.temp }}&deg;{{ weather.units.temp }}</span>
+        </h2>
+    </script>
+
+    <script id="tpl-layout-no_content_template" type="text/x-handlebars-template">
+        <header class="intro-header">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading no-content-found">
+                    <h1 data-name="name">No Feed could be found<br/><small>Please ensure this box is connected to a project</small></h1>
+                    <p><small>{{ settings.CORE_SERVER }}</small></p>
+                </div>
+            </div>
+        </header>
+    </script>
+
+    <script id="tpl-layout-basic" type="text/x-handlebars-template">
+        <header class="intro-header" style="background-image: url('{{ object.picture }}');">
+            <div class="container">
+                <div class="row">
+                    &nbsp;
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1 data-name="name">{{ object.name }}</h1>
+                    <h2 class="subheading" data-name="message">{{ object.message }}</h2>
+                </div>
+            </div>
+        </header>
+
+        <article>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1" data-name="description">
+                        {{ object.description }}
+                    </div>
+                </div>
+            </div>
+        </article>
+    </script>
+
+    <script id="tpl-layout-video" type="text/x-handlebars-template">
+        <video id="video_fullscreen" class="video-js vjs-default-skin"
+          controls preload="auto" width="640" height="264"
+          poster="{{ object.picture }}"
+          data-setup='{"example_option":false}'>
+         <source src="{{ object.video }}" type='video/mp4' />
+         <source src="{{ object.video }}" type='video/webm' />
+         <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+        </video>
+        <script type="text/javascript" charset="utf-8">
+        $(function(){
+            // Helper function to Fill and Center the HTML5 Video
+            jQuery('video').maximage('maxcover');
+        });
+        </script>
+    </script>
+
+    <script id="tpl-layout-image" type="text/x-handlebars-template">
+        <div id="maximage">
+            <img src="{{ object.picture }}" />
+        </div>
+            <h1>{{ object.name }}</h1>
+            <p>{{ object.description }}</p>
+        <script type="text/javascript" charset="utf-8">
+        $(function(){
+            // Helper function to Fill and Center the HTML5 Video
+            jQuery('#maximage').maximage('maxcover');
+        });
+        </script>
+    </script>
+    {% endraw %}
+
+    <!-- jQuery -->
+    {% assets "js/jquery.min.js", "js/jquery-ui.min.js", "js/hive_client.jquery.js", "js/maximage-2.0.js", "js/pusher-2.1.6.min.js", "js/handlebars.min.js", "js/js-signals.min.js", "js/hasher.min.js", "js/bootstrap.min.js", "js/clean-blog.js", "video-js/video.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+    {% assets "video-js/video-js.swf" %}
+    <script>
+      videojs.options.flash.swf = "{{ ASSET_URL }}"
+    </script>
+    {% endassets %}
+
+    {% assets "nprogress-0.1.6/nprogress.js", "simpleWeather-3.0.2/jquery.simpleWeather.min.js", "momentjs-2.9.0/momentjs.lang.min.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+    <script>
+    'use strict';
+    $(document).ready(function( ) {
+        var listen_to_pusher = function ( current_item, settings ) {
+            if ( settings.project !== null ) {
+                Pusher.host    = 'localhost'
+                Pusher.ws_port = 8080
+                Pusher.wss_port = 8080
+                var pusher = new Pusher('{{ pusher.PUSHER_KEY }}', { authEndpoint: hive_client_object.settings.CORE_SERVER_ENDPOINT + 'box/auth/pusher/'});
+                var pusher_channels = {
+                    'project': pusher.subscribe('presence-' + hive_client_object.project.slug ),
+                    'box': pusher.subscribe(hive_client_object.project.slug +'-{{ mac_addr }}'),
+                }
+
+                pusher_channels.project.bind('reload', function(data) {
+                  window.location.reload();
+                });
+                pusher_channels.box.bind('reload', function(data) {
+                  window.location.reload();
+                });
+                pusher_channels.box.bind('goto', function(data) {
+                  handleChanges( data.pk );
+                });
+            }
+        };
+
+        // Templates
+        var no_content_template = $("script#tpl-layout-no_content_template").html();
+        var basic_template = $("script#tpl-layout-basic").html();
+        var video_template = $("script#tpl-layout-video").html();
+        var image_template = $("script#tpl-layout-image").html();
+        var image_left = $("script#tpl-layout-image").html();
+        // Weather template
+        var weather_tpl = $("script#tpl-weather").html();
+
+        var hive_client_object = {
+            'feed': {{ feed_json|safe }},
+            'project': {{ project_json|safe }},
+            'settings': {{ settings|safe }},
+            'listeners': [listen_to_pusher],
+            'templates': {
+                'no_content': no_content_template,
+                'basic': basic_template,
+                'video': video_template,
+                'video_full': video_template,
+                'image': image_template,
+                'image_left': image_left
+            },
+        };
+
+        //handle hash changes
+        function handleChanges( newPk ){
+            if ( newPk !== NaN && newPk !== '' ) {
+                var pk = parseInt( newPk );
+                window.hive_client.goto( pk );
+            }
+        }
+
+        hasher.changed.add(handleChanges); //add hash change listener
+        hasher.initialized.add(handleChanges); //add initialized listener (to grab initial value in case it is already set)
+        hasher.init(); //initialize hasher (start listening for history changes)
+
+        /**
+        * Progress Bar Handler
+        */
+        $( 'body' ).on( 'start_progress', function( event, num_seconds ) {
+            console.log('on.start_progress num_seconds:' + num_seconds);
+
+            var current_second = 1;
+            var window_width = $('body').width();
+
+            var inc_amount = (1/num_seconds);
+            console.log('on.start_progress inc_amount:' + inc_amount);
+
+            NProgress.configure({
+                'trickle': true,
+                'trickleRate': 0.02,
+                'trickleSpeed': 1000,
+                'showSpinner': false
+            });
+
+            var n_progress_tick = function () {
+                current_second++;
+                if ( current_second >= num_seconds ) {
+                    window.clearInterval(n_progress);
+                }
+                var set_percentage = current_second / num_seconds;
+                //console.log('Percent:' + set_percentage);
+                NProgress.set(set_percentage);
+                //NProgress.inc(inc_amount);
+            };
+            var n_progress = window.setInterval(n_progress_tick, 1000);
+        });
+
+        // Date and Time
+        moment.locale('de');
+        var moment_in_time = function () {
+            var now = moment().format("llll");
+            $('#moment_in_time').html(now);
+            return now;
+        }
+        var a_moment_in_time = window.setInterval(moment_in_time, 1000);
+
+        $( 'body' ).on( 'end_progress', function( event ) {
+            //console.log('on.end_progress');
+            NProgress.done();
+        });
+        /**
+        * Weather display handler
+        */
+        $( 'body' ).on( 'hive_client.begin', function( event ) {
+            console.log('on.hive_client.begin:');
+            $.simpleWeather({
+                location: 'Mönchengladbach, NRW, DE',
+                woeid: '',
+                unit: 'c',
+                success: function( data ) {
+                    var weather_html = window.hive_client.options.renderer.compile( weather_tpl );
+                    var html = weather_html({'weather': data, 'time': moment_in_time()});
+                    console.log(data);
+                    $("#weather").html(html);
+                },
+                error: function(error) {
+                    $("#weather").html('<p>{{ error }}</p>');
+                }
+            });
+        });
+
+        $( "body" ).hive_client_controller(hive_client_object);
+        window.hive_client = $( "body" ).data( 'hive_client-hive_client_controller' );
+    });
+    </script>
+</body>
+
+</html>
