@@ -8,3 +8,4 @@ Flask-Uploads
 Flask-WTF
 Flask-Assets
 requests
+-e git+https://github.com/adafruit/Adafruit_Python_DHT.git#egg=Adafruit_DHT
