@@ -9,9 +9,6 @@ class Register(Command):
         Option('--project', '-p',
                dest='project',
                default=None),
-        # Option('--playlist', '-pl',
-        #        dest='playlist',
-        #        default=None),
     )
 
     def run(self, **kwargs):
@@ -19,4 +16,5 @@ class Register(Command):
         """
         s = BoxApiService()
         resp = s.register(**kwargs)
+
         print(resp.content)

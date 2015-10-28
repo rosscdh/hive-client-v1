@@ -11,20 +11,6 @@ import json
 import requests
 
 
-def getserial():
-    # Extract serial from cpuinfo file
-    cpuserial = "0000000000000000"
-    try:
-        with open('/proc/cpuinfo', 'r') as f:
-            for line in f:
-                if line[0:6] == 'Serial':
-                    cpuserial = line[10:26]
-    except Exception as e:
-        cpuserial = "ERROR000000000:%s" % e
-
-    return cpuserial
-
-
 class BoxApiService(object):
     """
     Service registers this box/client with the core server
@@ -32,21 +18,33 @@ class BoxApiService(object):
     FEED_PATH = os.path.join(settings.MEDIA_PATH, 'playlist.json')
     MAC_ADDRESS = settings.MAC_ADDR
 
+    @staticmethod
+    def get_device_id():
+        # Extract serial from cpuinfo file
+        cpuserial = "0000000000000000"
+        try:
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f:
+                    if line[0:6] == 'Serial':
+                        cpuserial = line[10:26]
+        except Exception as e:
+            cpuserial = "ERROR000000000:%s" % e
+
+        return cpuserial
+
     def register(self, **kwargs):
         project_slug = kwargs.get('project', None)  # project_slug to register with
 
         data = {
-            'device_id': getserial(),
+            'device_id': BoxApiService.get_device_id(),
             'mac_address': self.MAC_ADDRESS,
             'project': project_slug,
         }
-        url = '%s%s' % (settings.CORE_SERVER_ENDPOINT,
-                        'box/register/')
-        print(url)
-        print(data)
-        # resp = requests.post(url, data=data)
-        # return resp
-        return {}
+
+        url = '%s%s' % (settings.CORE_SERVER_ENDPOINT, 'box/register/')
+
+        resp = requests.post(url, data=data)
+        return resp
 
     def update_playlist(self, **kwargs):
         url = '%s%s' % (settings.CORE_SERVER_ENDPOINT,
