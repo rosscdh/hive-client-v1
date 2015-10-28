@@ -4,12 +4,18 @@ import config as settings
 from flask.ext.script import Command, Option
 from ..services import BoxApiService
 
-import json
 import requests
 import Adafruit_DHT
 
 
 class TemperatureHumidity(Command):
+    """
+    Must be run as sudo
+
+    # notice the virtualenv use of python
+    sudo .venv/bin/python manage.py temperature_humidity -s :sensor -p :pin
+
+    """
     option_list = (
         Option('--sensor', '-s',
                dest='sensor',
@@ -30,14 +36,18 @@ class TemperatureHumidity(Command):
 
         if humidity is not None and temperature is not None:
 
-            data = json.dumps({"sensor_action": "temperature,humidity",
-                               "temperature": temperature,
-                               "humidity": humidity,
-                               "tags": {
-                                   "device_id": device_id,
-                               }})
+            data = {"sensor_action":
+                    "temperature,humidity",
+                    "temperature": temperature,
+                    "humidity": humidity,
+                    "tags": {
+                        "device_id": device_id,
+                    }}
 
-            resp = requests.post(url, data=data)
+            #
+            # NB: MUST use json= here as we are expecting plain json payload at the api
+            #
+            resp = requests.post(url, json=data)
             print(resp.content)
 
         else:
