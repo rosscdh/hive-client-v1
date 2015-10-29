@@ -28,13 +28,14 @@ class TemperatureHumidity(Command):
     def run(self, **kwargs):
         """
         """
-        device_id = BoxApiService.get_device_id()
-        url = '%s%s' % (settings.CORE_SERVER_ENDPOINT, 'event/')
         # Try to grab a sensor reading.  Use the read_retry method which will retry up
         # to 15 times to get a sensor reading (waiting 2 seconds between each retry).
         humidity, temperature = Adafruit_DHT.read_retry(kwargs.get('sensor'), kwargs.get('pin'))
 
         if humidity is not None and temperature is not None:
+
+            device_id = BoxApiService.get_device_id()
+            url = '%s%s' % (settings.CORE_SERVER_ENDPOINT, 'event/')
 
             data = {"sensor_action":
                     "temperature,humidity",
@@ -51,4 +52,4 @@ class TemperatureHumidity(Command):
             print(resp.content)
 
         else:
-            print('Failed to get reading. Try again!')
+            print('Failed to get reading humidity: %s, temperature: %s. Try again!' % (humidity, temperature))
