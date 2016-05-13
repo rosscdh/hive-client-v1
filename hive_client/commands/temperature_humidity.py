@@ -30,7 +30,8 @@ class TemperatureHumidity(Command):
         """
         # Try to grab a sensor reading.  Use the read_retry method which will retry up
         # to 15 times to get a sensor reading (waiting 2 seconds between each retry).
-        humidity, temperature = Adafruit_DHT.read_retry(kwargs.get('sensor'), kwargs.get('pin'))
+        sensor = kwargs.get('sensor')
+        humidity, temperature = Adafruit_DHT.read_retry(sensor, kwargs.get('pin'))
 
         if humidity is not None and temperature is not None:
 
@@ -43,6 +44,7 @@ class TemperatureHumidity(Command):
                     "humidity": humidity,
                     "tags": {
                         "device_id": device_id,
+                        "sensor_id": device_id,
                     }}
 
             #
