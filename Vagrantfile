@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--memory", "1024"]
     end
 
-    config.vm.network "forwarded_port", guest: 5000, host: 5000
+    config.vm.network "forwarded_port", guest: 6000, host: 6000
     config.vm.network "forwarded_port", guest: 80, host: 5080
     #config.vm.synced_folder ".", "/var/apps/hive_client-client/versions/hive_client-client"
     #config.vm.synced_folder "../conf", "/home/vagrant/conf"
